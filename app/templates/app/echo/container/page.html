@@ -15,7 +15,8 @@
         };
 
         ws.onmessage = (e) => {
-            const message = e.data;
+            const json_string = e.data
+            const message = JSON.parse(json_string);
             console.log('메세지 수신 :', message);
         };
 
