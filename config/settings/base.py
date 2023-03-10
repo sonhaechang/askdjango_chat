@@ -38,6 +38,7 @@ SECRET_KEY = env.str('SECRET_KEY')
 DJANGO_APPS = [
     'channels',
     'daphne',
+    
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -50,7 +51,9 @@ PROJECT_APPS = [
     'app.apps.AppConfig',
 ]
 
-THIRD_PARTY_APPS = []
+THIRD_PARTY_APPS = [
+    'django_bootstrap5',
+]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + PROJECT_APPS
 
