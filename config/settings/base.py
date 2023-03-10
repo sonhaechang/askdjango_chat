@@ -10,9 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
-import json
+from environ import Env
 from pathlib import Path
-from django.core.exceptions import ImproperlyConfigured
 from django.contrib.messages import constants as messages_constants
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -22,22 +21,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
-secret_file = BASE_DIR / 'secrets.json'
+env = Env()
 
-with open(secret_file) as f:
-    secrets = json.loads(f.read())
+env_path = BASE_DIR / '.env'
 
-
-def get_secret(setting, secrets_dict=secrets):
-    try:
-        return secrets_dict[setting]
-    except KeyError:
-        error_msg = f'Set the {setting} environment variable'
-        raise ImproperlyConfigured(error_msg)
-
+if env_path.exists():
+    with env_path.open(encoding='utf-8') as f:
+        env.read_env(f, overwrite=True)
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = get_secret('SECRET_KEY')
+SECRET_KEY = env.str('SECRET_KEY')
 
 
 # Application definition
@@ -128,3 +121,23 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# # Django channels layer
+
+if "CHANNEL_LAYER_REDIS_URL" in env:
+    channel_layer_redis = env.db_url("CHANNEL_LAYER_REDIS_URL")
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels_redis.core.RedisChannelLayer",
+            "CONFIG": {
+                "hosts": [
+                    {
+                        "host": channel_layer_redis["HOST"],
+                        "port": channel_layer_redis.get("PORT") or 6379,
+                        "password": channel_layer_redis["PASSWORD"],
+                    }
+                ]
+            }
+        }
+    }
