@@ -60,6 +60,8 @@
     <script>
         const handlers = {
             chat_messages_tag: null,
+            ws: null,
+            retry: 0,
 
             init() {
                 this.chat_messages_tag = document.getElementById('chat_messages');
@@ -67,11 +69,67 @@
                     .addEventListener('submit', this.onsubmit.bind(this));
             },
 
-            append_message(message) {
-                const element = document.createElement('div');
-                element.className = 'chat-message';
+            connect(ws_url) {
+                if (this.ws) this.ws.close();
 
-                const wrapper = document.createElement('div');
+                this.ws = new WebSocket(ws_url || this.ws?.url);
+                this.ws.onopen = this.onopen.bind(this);
+                this.ws.onclose = this.onclose.bind(this);
+                this.ws.onerror = this.onerror.bind(this);
+                this.ws.onmessage = this.onmessage.bind(this);
+            },
+
+            reconnect() {
+                this.connect();
+            },
+
+            onopen() {
+                console.log("웹소켓 서버와 접속");
+                this.retry = 0;
+            },
+
+            onclose(e) {
+                if (!e.wasClean) {
+                    console.error("웹소켓 서버가 죽었거나 네트워크 장애입니다.");
+
+                    if (this.retry < 3) {
+                        this.retry += 1;
+                        
+                        setTimeout(() => {
+                            this.reconnect();
+                            console.log(`[${this.retry}] 접속 재시도...`)
+                        }, 1000 * this.retry);
+                    } else {
+                        console.log("웹소켓 서버에 접속할 수 없습니다. 대기실로 이동합니다.");
+                        window.location.href = "{% url 'chat:index' %}";
+                    }
+                }
+            },
+
+            onerror() {
+                console.log("웹소켓 에러가 발생했습니다. 대기실로 이동합니다.");
+                window.location.href = "{% url 'chat:index' %}";
+            },
+
+            onmessage(e) {
+                const message_json = e.data;
+                console.log('메시지 수신 :', message_json);
+
+                const { type, message } = JSON.parse(message_json);
+                switch(type) {
+                    case "chat.message":
+                        this.append_message(message);
+                        break;
+                    default:
+                        console.error(`Invalid message type : ${type}`);
+                }
+            },
+
+            append_message(message) {
+                const element = document.createElement("div");
+                element.className = "chat-message";
+
+                const wrapper = document.createElement("div");
                 wrapper.textContent = message;
                 element.appendChild(wrapper);
 
@@ -87,13 +145,21 @@
                 e.target.reset();
 
                 const { message } = props;
-                console.log('웹소켓으로 전송할 메시지 :', message);
+                console.log("웹소켓으로 전송할 메시지 :", message);
 
-                this.append_message(message);
+                this.ws.send(JSON.stringify({
+                    type: 'chat.message',
+                    message: message,
+                }));
             }
 
         }
 
         handlers.init();
+
+        const protocol = location.protocol === "http:" ? "ws:" : "wss";
+        const ws_url = protocol + "//" + location.host + "/ws" + location.pathname;
+
+        handlers.connect(ws_url);
     </script>
 {% endblock %}
