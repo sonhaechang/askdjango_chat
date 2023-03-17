@@ -49,6 +49,7 @@ DJANGO_APPS = [
 
 PROJECT_APPS = [
     'app.apps.AppConfig',
+    'chat.apps.ChatConfig',
 ]
 
 THIRD_PARTY_APPS = [
