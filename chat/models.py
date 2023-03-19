@@ -23,3 +23,6 @@ class Room(models.Model):
     @classmethod
     def make_chat_gourp_name(room=None, room_pk=None):
         return 'chat-%s' % (room_pk or room.pk)
+    
+    class Meta:
+        ordering = ['-pk']

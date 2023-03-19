@@ -6,7 +6,11 @@ from chat.models import Room
 
 # Create your views here.
 def index(request):
-    return render(request, 'chat/container/index.html')
+    room_qs = Room.objects.all()
+
+    return render(request, 'chat/container/index.html', {
+        'room_list': room_qs,
+    })
 
 
 def room_new(request):
@@ -25,7 +29,7 @@ def room_new(request):
 
 def room_chat(request, room_pk):
     room = get_object_or_404(Room, pk=room_pk)
-    
+
     return render(request, 'chat/container/room_chat.html', {
         'room': room,
     })
