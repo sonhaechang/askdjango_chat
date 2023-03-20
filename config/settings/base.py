@@ -48,6 +48,7 @@ DJANGO_APPS = [
 ]
 
 PROJECT_APPS = [
+    'accounts.apps.AccountsConfig',
     'app.apps.AppConfig',
     'chat.apps.ChatConfig',
 ]

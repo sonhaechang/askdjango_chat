@@ -19,6 +19,7 @@ from django.views.generic import RedirectView
 
 urlpatterns = [
     path('', RedirectView.as_view(pattern_name='chat:index'), name='root'),
+    path('accounts/', include('accounts.urls')),
     path('admin/', admin.site.urls),
     path('app/', include('app.urls')),
     path('chat/', include('chat.urls')),
