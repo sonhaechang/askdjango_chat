@@ -16,7 +16,10 @@
                 </a>
                 <button type="button" class="btn btn-primary">Sign-up</button>
             {% else %}
-                <button type="button" class="btn btn-outline-primary me-2">Profile</button>
+                <a href="{% url 'accounts:profile' %}" 
+                    class="btn btn-outline-primary me-2">
+                    Profile
+                </a>
                 <a href="{% url 'accounts:logout' %}?next={{ request.path }}" 
                     class="btn btn-primary">
                     Logout

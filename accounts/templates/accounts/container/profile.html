@@ -1,0 +1,10 @@
+{% extends 'container/base.html' %}
+
+{% block content %}
+    <h3>{{ user }}'s Profile</h3>
+
+    <ul>
+        <li>username: {{ user.username }}</li>
+        <li>last_login: {{ user.last_login }}</li>
+    </ul>
+{% endblock %}
