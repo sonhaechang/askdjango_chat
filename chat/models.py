@@ -26,11 +26,11 @@ class Room(models.Model):
 
     @property
     def chat_group_name(self):
-        return self.make_chat_gourp_name(room=self)
-    
-    @classmethod
-    def make_chat_gourp_name(room=None, room_pk=None):
-        return 'chat-%s' % (room_pk or room.pk)
+        return self.make_chat_group_name(room=self)
+
+    @staticmethod
+    def make_chat_group_name(room=None, room_pk=None):
+        return "chat-%s" % (room_pk or room.pk)
     
     class Meta:
         ordering = ['-pk']

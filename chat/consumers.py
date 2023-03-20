@@ -16,7 +16,7 @@ class ChatConsumer(JsonWebsocketConsumer):
             self.close()
         else:
             room_pk = self.scope['url_route']['kwargs']['room_pk']
-            self.group_name = Room.make_chat_gourp_name(room_pk)
+            self.group_name = Room.make_chat_group_name(room_pk=room_pk)
 
             async_to_sync(self.channel_layer.group_add)(
                 self.group_name,
@@ -39,7 +39,7 @@ class ChatConsumer(JsonWebsocketConsumer):
         if _type == 'chat.message':
             message = content['message']
             sender = user.username
-            
+
             async_to_sync(self.channel_layer.group_send)(
                 self.group_name,
                 {
@@ -58,4 +58,7 @@ class ChatConsumer(JsonWebsocketConsumer):
             'sender': message_dict['sender'],
         })
 
-    
+
+    def chat_room_deleted(self, message_dict):
+        custom_code = 4000
+        self.close(code=custom_code)
