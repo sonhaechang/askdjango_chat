@@ -13,6 +13,16 @@
             max-width: 80%;
             word-wrap: break-word;
         }
+
+        .chat-message.me {
+            text-align: right;
+        }
+
+        .chat-message.me > div {
+            background-color: #1f8cff;
+            color: #fff;
+            text-align: left;
+        }
     </style>
 {% endblock %}
 
@@ -113,19 +123,26 @@
                 const message_json = e.data;
                 console.log('메시지 수신 :', message_json);
 
-                const { type, message } = JSON.parse(message_json);
+                const { type, message, sender } = JSON.parse(message_json);
                 switch(type) {
                     case "chat.message":
-                        this.append_message(message);
+                        this.append_message(message, sender);
                         break;
                     default:
                         console.error(`Invalid message type : ${type}`);
                 }
             },
 
-            append_message(message) {
+            append_message(message, sender) {
                 const element = document.createElement("div");
                 element.className = "chat-message";
+
+                let footer = "";
+                if (sender === "{{ user.username }}") {
+                    element.className += " me";
+                } else if (sender) {
+                    footer = ` from ${sender}`;
+                }
 
                 const wrapper = document.createElement("div");
                 wrapper.textContent = message;
