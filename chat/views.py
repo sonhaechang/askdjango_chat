@@ -28,8 +28,10 @@ def room_new(request):
     if request.method == 'POST':
         form = RoomForm(request.POST)
         if form.is_valid():
-            new_room = form.save()
-            return redirect('chat:room_chat', new_room.pk)
+            created_room = form.save(commit=False)
+            created_room.owner = request.user
+            created_room.save()
+            return redirect('chat:room_chat', created_room.pk)
     else:
         form = RoomForm()
 
