@@ -69,6 +69,8 @@
             {% endif %}
         </div>
     </div>
+
+    {% include 'components/alert_modal.html' %}
 {% endblock %}
 
 {% block script %}
@@ -173,8 +175,23 @@
                     type: 'chat.message',
                     message: message,
                 }));
-            }
+            },
 
+            modal(message, ok_handler) {
+                const modal_ele = document.querySelector("#staticBackdrop");
+                const body_ele = modal_ele.querySelector(".modal-body");
+                const button_ele = modal_ele.querySelector(".modal-footer button");
+
+                body_ele.textContent = message;
+
+                button_ele.addEventListener("click", () => {
+                    if(ok_handler) ok_handler();
+                    modal.hide();
+                });
+
+                const modal = new bootstrap.Modal(modal_ele);
+                modal.show();
+            }
         }
 
         handlers.init();
