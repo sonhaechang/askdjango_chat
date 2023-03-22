@@ -23,16 +23,17 @@ class ChatConsumer(JsonWebsocketConsumer):
             except Room.DoesNotExist:
                 self.close()
             else:
-                self.group_name = self.room.make_chat_group_name
+                self.group_name = self.room.chat_group_name
 
                 is_new_join = self.room.user_join(self.channel_name, user)
+
                 if is_new_join:
                     async_to_sync(self.channel_layer.group_send)(
                         self.group_name,
                         {
                             'type': 'chat.user.join',
                             'username': user.username,
-                        },
+                        }
                     )
 
                 async_to_sync(self.channel_layer.group_add)(
@@ -63,7 +64,6 @@ class ChatConsumer(JsonWebsocketConsumer):
                     }
                 )
         
-
     def receive_json(self, content, **kwargs):
         user = self.scope['user']
         _type = content['type']

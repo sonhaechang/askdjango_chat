@@ -15,18 +15,18 @@ class OnlineUserMixin(models.Model):
 
     def get_online_users(self):
         ''' 현 Room에 접속중인 User 쿼리셋을 반환 '''
-
+        
         return self.online_user_set.all()
-    
+
     def get_online_usernames(self):
-        qs = self.get_online_users().values_list('username', flat=True)
+        qs = self.get_online_users().values_list("username", flat=True)
         return list(qs)
-    
+
     def is_joined_user(self, user):
         ''' 지정 User가 현 Room의 접속 여부를 반영 '''
 
         return self.get_online_users().filter(pk=user.pk).exists()
-    
+
     def user_join(self, channel_name, user):
         ''' 현 Room에 최초 접속 여부를 반환 '''
 
@@ -41,10 +41,10 @@ class OnlineUserMixin(models.Model):
         if room_member.pk is None:
             room_member.save()
         else:
-            room_member.save(update_fields=['channel_names'])
+            room_member.save(update_fields=["channel_names"])
 
         return is_new_join
-    
+
     def user_leave(self, channel_name, user):
         ''' 현 Room으로부터 최종 접속종료 여부를 반환 '''
 
@@ -52,14 +52,14 @@ class OnlineUserMixin(models.Model):
             room_member = RoomMember.objects.get(room=self, user=user)
         except RoomMember.DoesNotExist:
             return True
-        
+
         room_member.channel_names.remove(channel_name)
 
         if not room_member.channel_names:
             room_member.delete()
             return True
         else:
-            room_member(update_fields=['channel_names'])
+            room_member.save(update_fields=["channel_names"])
             return False
 
     class Meta:
@@ -101,7 +101,7 @@ class Room(OnlineUserMixin, models.Model):
 
 class RoomMember(models.Model):
     # 하나의 User가 하나의 Room 간의 관계를 1회 저장한다.
-    
+
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE
