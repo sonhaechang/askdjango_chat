@@ -136,13 +136,17 @@
 
             onmessage(e) {
                 const message_json = e.data;
-                console.log('메시지 수신 :', message_json);
-
-                const { type, message, sender } = JSON.parse(message_json);
+                const { type, message, sender, username } = JSON.parse(message_json);
 
                 switch(type) {
                     case "chat.message":
                         this.append_message(message, sender);
+                        break;
+                    case "chat.user.join":
+                        this.append_message(`${username}님이 들어오셨습니다.`);
+                        break;
+                    case "chat.user.leave":
+                        this.append_message(`${username}님이 나가셨습니다.`);
                         break;
                     default:
                         console.error(`Invalid message type : ${type}`);
@@ -162,7 +166,7 @@
                 }
 
                 const wrapper = document.createElement("div");
-                
+
                 wrapper.textContent = message;
                 element.appendChild(wrapper);
 
@@ -178,7 +182,6 @@
                 e.target.reset();
 
                 const { message } = props;
-                console.log("웹소켓으로 전송할 메시지 :", message);
 
                 this.ws.send(JSON.stringify({
                     type: 'chat.message',
